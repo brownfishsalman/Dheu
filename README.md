@@ -40,8 +40,8 @@ Useful commands:
 
 1. Push the code to a GitHub repository.
 2. On vercel.com → **Add New… → Project** → import the repo. Framework is detected automatically.
-3. Under **Environment Variables**, add every line from `.env.local`, but set
-   `NEXT_PUBLIC_SITE_URL` to your real address, e.g. `https://dheu.vercel.app`.
+3. Under **Environment Variables**, add every line from `.env.local`.
+   (`NEXT_PUBLIC_SITE_URL` is only a fallback — the app detects its own address.)
 4. Deploy. Every later `git push` redeploys automatically.
 5. Vercel runs the cleanup job (`/api/cron/cleanup`) once a day (see `vercel.json`). It needs the `CRON_SECRET` variable to be set in Vercel too.
 
@@ -53,7 +53,7 @@ To use a custom domain later: Vercel → Project → Settings → Domains.
 
 Everything is under **Settings → Open admin panel** (only visible to the admin).
 
-- **Invites** – generate a code, set how many people can use it and when it expires. The copy button gives a link like `https://dheu.vercel.app/signup?code=WAVE-XXXX-XXXX` with the code pre-filled.
+- **Invites** – generate a code, set how many people can use it and when it expires. The copy button gives a link like `https://dheu-beige.vercel.app/signup?code=WAVE-XXXX-XXXX` with the code pre-filled.
 - **Members** – suspend (blocks login instantly), reinstate, set a temporary password for someone who forgot theirs (tell them privately; they change it in Settings), or delete a member and everything they posted.
 - **Content** – see all active stories and recent posts; delete anything. You can also delete any post from the "…" menu on the post itself.
 - **Overview** – member count, storage used vs. the free 1 GB, etc.

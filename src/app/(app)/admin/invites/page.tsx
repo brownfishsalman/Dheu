@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InviteManager } from "@/components/admin/InviteManager";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = { title: "Invites" };
 
 export default async function AdminInvitesPage() {
   const admin = createAdminClient();
+  const siteUrl = await getSiteUrl();
   const { data: invites } = await admin
     .from("invite_codes")
     .select("*")
@@ -14,7 +16,7 @@ export default async function AdminInvitesPage() {
   return (
     <InviteManager
       invites={invites ?? []}
-      siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? ""}
+      siteUrl={siteUrl}
     />
   );
 }
