@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Camera, Search } from "lucide-react";
-import { requireProfile } from "@/lib/data/session";
+import { redirect } from "next/navigation";
+import { getUserId, requireProfile } from "@/lib/data/session";
 import { getFollowingIds } from "@/lib/data/profiles";
 import { getFeedPage } from "@/lib/data/posts";
 import { getStoryFeed } from "@/lib/data/stories";
@@ -8,8 +9,10 @@ import { FeedList } from "@/components/post/FeedList";
 import { StoryBar } from "@/components/story/StoryBar";
 
 export default async function HomePage() {
-  const me = await requireProfile();
-  const following = await getFollowingIds(me.id);
+  const userId = await getUserId();
+  if (!userId) redirect("/login");
+  // Two round-trips instead of four: (profile + following) then (feed + stories).
+  const [me, following] = await Promise.all([requireProfile(), getFollowingIds(userId)]);
   const [{ posts, nextCursor }, stories] = await Promise.all([
     getFeedPage(me.id, following),
     getStoryFeed(me.id, following),

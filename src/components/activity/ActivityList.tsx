@@ -8,7 +8,7 @@ import { FollowButton } from "@/components/profile/FollowButton";
 import { publicUrl } from "@/lib/storage";
 import { timeAgo } from "@/lib/time";
 import { markAllNotificationsRead } from "@/app/(app)/activity/actions";
-import { ACTIVITY_READ_EVENT } from "@/components/nav/ActivityBadge";
+import { ACTIVITY_READ_EVENT } from "@/components/nav/BadgeProvider";
 import type { NotificationItem } from "@/lib/data/notifications";
 
 type Props = { items: NotificationItem[]; followingIds: string[]; meId: string };

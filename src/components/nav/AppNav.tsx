@@ -6,8 +6,7 @@ import { Home, Search, PlusSquare, MessageCircle, Heart, Shield, Settings } from
 import { Logo, WaveMark } from "@/components/brand/Logo";
 import { Avatar } from "@/components/ui/Avatar";
 import type { Profile } from "@/lib/database.types";
-import { UnreadBadge } from "@/components/nav/UnreadBadge";
-import { ActivityBadge } from "@/components/nav/ActivityBadge";
+import { UnreadBadge, ActivityBadge } from "@/components/nav/BadgeProvider";
 
 type Props = { profile: Profile };
 

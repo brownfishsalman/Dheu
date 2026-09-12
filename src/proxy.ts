@@ -6,9 +6,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on every route except static assets and the cron endpoint
-  // (which authenticates with its own secret).
+  // Run on every page route. Static assets and /api/* are excluded
+  // (API routes authenticate themselves).
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icons/|brand/|manifest.webmanifest|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
