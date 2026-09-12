@@ -80,7 +80,8 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     .from("profiles")
     .select("id", { count: "exact", head: true });
   if (countError) {
-    return { error: "Something went wrong. Please try again.", fields: fieldsOf(formData) };
+    console.error("[signup] profile count failed:", countError);
+    return { error: `Couldn't reach the database (${countError.message}). Please try again.`, fields: fieldsOf(formData) };
   }
   const isFirstUser = (count ?? 0) === 0;
 
@@ -122,6 +123,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   });
 
   if (createError) {
+    console.error("[signup] createUser failed:", createError);
     if (inviteCodeId) await admin.rpc("release_invite_code", { p_id: inviteCodeId });
     const msg = /already|exists|registered/i.test(createError.message)
       ? "An account with this email already exists."
@@ -134,6 +136,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const supabase = await createClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
   if (signInError) {
+    console.error("[signup] sign-in after create failed:", signInError);
     // Account exists now; send them to log in manually.
     redirect("/login?created=1");
   }

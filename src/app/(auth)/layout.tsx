@@ -26,10 +26,10 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </svg>
       </div>
 
-      <div className="mb-8 flex flex-col items-center gap-3">
-        <WaveMark size={64} />
-        <Wordmark className="text-5xl" />
-        <p className="text-sm text-ink-muted">Share moments with your people.</p>
+      <div className="mb-8 flex flex-col items-center gap-4">
+        <WaveMark size={112} />
+        <Wordmark className="text-[34px]" />
+        <p className="-mt-1 text-sm text-ink-muted">Share moments with your people.</p>
       </div>
 
       <div className="card w-full max-w-sm p-6 shadow-card">{children}</div>

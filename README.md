@@ -93,6 +93,7 @@ src/lib/data/          server-side data queries (Supabase)
 src/lib/supabase/      Supabase clients (browser, server, admin) + session refresh (proxy)
 src/lib/images.ts      browser-side resize / HEIC conversion / metadata stripping
 supabase/migrations/   database schema, security rules (RLS), storage buckets
+scripts/build-logo.mjs regenerates public/brand + app icons from the original logo PNGs
 ```
 
 Security model: every table has Row Level Security. Users can only change their own data; the admin can delete anything. Privileged actions (sign-up, bans, cleanup) run on the server with the secret key.

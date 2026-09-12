@@ -7,12 +7,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Share moments with your people.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f4f8fa",
-    theme_color: "#0b8fa8",
+    background_color: "#00273d",
+    theme_color: "#00273d",
     icons: [
-      { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }
