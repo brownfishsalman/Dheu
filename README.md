@@ -1,6 +1,6 @@
 # Dheu (ঢেউ)
 
-A small, invite-only photo-sharing community. Still images only: posts (up to 10 photos, gone after 30 days), 24-hour stories with highlights, follows, likes, comments, and 1-to-1 chat.
+A small, invite-only photo-sharing community. Still images only: posts (up to 10 photos, gone after 30 days), 24-hour stories with highlights, follows, likes, comments, an activity feed (likes / follows / comments / story reactions), and 1-to-1 chat.
 
 Built with **Next.js** (the website) and **Supabase** (database, login, image storage, realtime chat). Hosted for free on **Vercel**.
 
@@ -30,6 +30,7 @@ Useful commands:
 1. **Supabase project** – create one at supabase.com, then run these files in **SQL Editor → New query**, in order:
    - `supabase/migrations/0001_init.sql`
    - `supabase/migrations/0002_admin.sql`
+   - `supabase/migrations/0003_notifications.sql`
 2. **Turn off "Confirm email"** – Supabase → Authentication → Sign In / Providers → Email → untick _Confirm email_. (Accounts are created by the app with the invite code, so no confirmation email is needed. The free tier can't send emails to arbitrary addresses anyway.)
 3. **Keys** – Supabase → Project Settings → API keys. Put the URL, the _publishable_ key and the _secret_ key in `.env.local` (copy `.env.example`).
 4. **First account = admin.** The very first person to sign up doesn't need an invite code and automatically becomes the admin. Do this yourself immediately after deploying.

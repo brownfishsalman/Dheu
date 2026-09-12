@@ -501,6 +501,85 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          actor_id: string;
+          type: "like" | "follow" | "comment" | "story_reaction";
+          post_id: string | null;
+          comment_id: string | null;
+          story_id: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          actor_id: string;
+          type: "like" | "follow" | "comment" | "story_reaction";
+          post_id?: string | null;
+          comment_id?: string | null;
+          story_id?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          actor_id?: string;
+          type?: "like" | "follow" | "comment" | "story_reaction";
+          post_id?: string | null;
+          comment_id?: string | null;
+          story_id?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "post_feed";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_story_id_fkey";
+            columns: ["story_id"];
+            isOneToOne: false;
+            referencedRelation: "stories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       conversation_reads: {
         Row: { conversation_id: string; user_id: string; last_read_at: string };
         Insert: { conversation_id: string; user_id: string; last_read_at?: string };
@@ -578,6 +657,7 @@ export type Message = Tables<"messages">;
 export type Conversation = Tables<"conversations">;
 export type InviteCode = Tables<"invite_codes">;
 export type StoryHighlight = Tables<"story_highlights">;
+export type Notification = Tables<"notifications">;
 
 // Generic `Rel` is only used to keep the shape documented above.
 export type _Relationship = Rel;

@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, PlusSquare, MessageCircle, Shield, Settings } from "lucide-react";
+import { Home, Search, PlusSquare, MessageCircle, Heart, Shield, Settings } from "lucide-react";
 import { Logo, WaveMark } from "@/components/brand/Logo";
 import { Avatar } from "@/components/ui/Avatar";
 import type { Profile } from "@/lib/database.types";
 import { UnreadBadge } from "@/components/nav/UnreadBadge";
+import { ActivityBadge } from "@/components/nav/ActivityBadge";
 
 type Props = { profile: Profile };
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof Home;
+  badge?: "messages" | "activity";
+};
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -23,11 +31,12 @@ export function Sidebar({ profile }: Props) {
   const pathname = usePathname();
   const profileHref = `/u/${profile.username}`;
 
-  const items = [
+  const items: NavItem[] = [
     { href: "/", label: "Home", icon: Home },
     { href: "/explore", label: "Search", icon: Search },
     { href: "/new", label: "Create", icon: PlusSquare },
-    { href: "/messages", label: "Messages", icon: MessageCircle, badge: true },
+    { href: "/activity", label: "Activity", icon: Heart, badge: "activity" },
+    { href: "/messages", label: "Messages", icon: MessageCircle, badge: "messages" },
   ];
 
   return (
@@ -53,7 +62,8 @@ export function Sidebar({ profile }: Props) {
             >
               <span className="relative">
                 <Icon className="size-6" strokeWidth={active ? 2.5 : 2} />
-                {badge && <UnreadBadge className="absolute -top-1.5 -right-1.5" />}
+                {badge === "messages" && <UnreadBadge className="absolute -top-1.5 -right-1.5" />}
+                {badge === "activity" && <ActivityBadge className="absolute -top-1.5 -right-1.5" />}
               </span>
               <span className="hidden xl:inline">{label}</span>
             </Link>
@@ -95,11 +105,11 @@ export function TabBar({ profile }: Props) {
   const pathname = usePathname();
   const profileHref = `/u/${profile.username}`;
 
-  const items = [
+  const items: NavItem[] = [
     { href: "/", label: "Home", icon: Home },
     { href: "/explore", label: "Search", icon: Search },
     { href: "/new", label: "Create", icon: PlusSquare },
-    { href: "/messages", label: "Messages", icon: MessageCircle, badge: true },
+    { href: "/messages", label: "Messages", icon: MessageCircle, badge: "messages" },
   ];
 
   return (
@@ -120,7 +130,7 @@ export function TabBar({ profile }: Props) {
               >
                 <span className="relative">
                   <Icon className="size-[26px]" strokeWidth={active ? 2.5 : 2} />
-                  {badge && <UnreadBadge className="absolute -top-1.5 -right-2" />}
+                  {badge === "messages" && <UnreadBadge className="absolute -top-1.5 -right-2" />}
                 </span>
               </Link>
             </li>
@@ -149,10 +159,16 @@ export function MobileHeader() {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-surface/95 px-4 backdrop-blur pt-safe md:hidden">
       <Logo size={28} />
-      <Link href="/messages" aria-label="Messages" className="relative -mr-1 p-1 text-ink">
-        <MessageCircle className="size-[26px]" />
-        <UnreadBadge className="absolute top-0 right-0" />
-      </Link>
+      <div className="-mr-1 flex items-center gap-1">
+        <Link href="/activity" aria-label="Activity" className="relative p-1 text-ink">
+          <Heart className="size-[26px]" />
+          <ActivityBadge className="absolute top-0 right-0" />
+        </Link>
+        <Link href="/messages" aria-label="Messages" className="relative p-1 text-ink">
+          <MessageCircle className="size-[26px]" />
+          <UnreadBadge className="absolute top-0 right-0" />
+        </Link>
+      </div>
     </header>
   );
 }

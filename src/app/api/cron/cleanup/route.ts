@@ -56,5 +56,10 @@ export async function GET(request: Request) {
     else report.stories = removable.length;
   }
 
+  // ---- old notifications (keep the activity page light) -----------------
+  const cutoff = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const { error: nErr } = await admin.from("notifications").delete().lt("created_at", cutoff);
+  if (nErr) report.errors.push(`notifications: ${nErr.message}`);
+
   return NextResponse.json({ ok: report.errors.length === 0, ranAt: now, ...report });
 }
