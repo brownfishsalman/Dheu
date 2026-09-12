@@ -1,26 +1,170 @@
 @import "tailwindcss";
 
+/* Manual dark mode: <html class="dark">. System preference is applied by the
+   inline script in layout.tsx when the user hasn't chosen. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                        */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f4f8fa; /* page background */
+  --surface: #ffffff; /* cards, bars */
+  --surface-2: #eaf1f5; /* subtle fills, inputs */
+  --line: #d9e4ea; /* borders */
+  --ink: #0e1b2b; /* primary text */
+  --ink-muted: #5f7385; /* secondary text */
+  --ink-faint: #93a5b4; /* placeholders, timestamps */
+
+  --brand: #0b8fa8; /* Dheu teal */
+  --brand-strong: #0a6f86;
+  --brand-soft: #d8f1f6;
+  --brand-ink: #ffffff;
+  --wave-a: #0ea5e9; /* gradient: sky */
+  --wave-b: #0d9488; /* gradient: teal */
+
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --like: #ef4444;
+
+  --radius: 14px;
+  --shadow: 0 1px 2px rgb(14 27 43 / 0.06), 0 6px 20px -8px rgb(14 27 43 / 0.12);
+}
+
+.dark {
+  --canvas: #0a1220;
+  --surface: #111b2c;
+  --surface-2: #182539;
+  --line: #22334a;
+  --ink: #e8eef5;
+  --ink-muted: #94a7ba;
+  --ink-faint: #64788c;
+
+  --brand: #22b8d3;
+  --brand-strong: #5fd0e4;
+  --brand-soft: #123a47;
+  --brand-ink: #06202a;
+  --wave-a: #38bdf8;
+  --wave-b: #2dd4bf;
+
+  --danger: #f87171;
+  --danger-soft: #3f1d1d;
+  --like: #f87171;
+
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -10px rgb(0 0 0 / 0.6);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-wave-a: var(--wave-a);
+  --color-wave-b: var(--wave-b);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-like: var(--like);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: var(--radius);
+  --shadow-card: var(--shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ------------------------------------------------------------------ */
+/* Base                                                                 */
+/* ------------------------------------------------------------------ */
+html {
+  color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  overscroll-behavior-y: none;
+}
+
+/* Safe-area padding helpers for phones with notches / home bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Brand gradient text (the "Dheu" wordmark) */
+.text-wave {
+  background: linear-gradient(100deg, var(--wave-a), var(--wave-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bg-wave {
+  background: linear-gradient(135deg, var(--wave-a), var(--wave-b));
+}
+
+/* Story ring: unseen = gradient, seen = flat grey */
+.ring-story {
+  background: conic-gradient(from 210deg, var(--wave-a), var(--wave-b), var(--wave-a));
+}
+.ring-story-seen {
+  background: var(--line);
+}
+
+/* Hide scrollbars on horizontal strips (story bar) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth image fade-in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 200ms ease-out both;
+}
+
+/* Reusable form controls (registered as utilities so they can be @apply'd) */
+@utility input {
+  @apply w-full rounded-xl border border-line bg-surface-2 px-3.5 py-2.5 text-[15px] text-ink placeholder:text-ink-faint outline-none transition focus:border-brand focus:bg-surface focus:ring-2 focus:ring-brand/25;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+  @apply btn bg-brand text-brand-ink hover:bg-brand-strong;
+}
+@utility btn-secondary {
+  @apply btn border border-line bg-surface text-ink hover:bg-surface-2;
+}
+@utility btn-ghost {
+  @apply btn text-ink-muted hover:bg-surface-2 hover:text-ink;
+}
+@utility btn-danger {
+  @apply btn bg-danger-soft text-danger hover:brightness-95;
+}
+@utility card {
+  @apply rounded-card border border-line bg-surface;
 }
