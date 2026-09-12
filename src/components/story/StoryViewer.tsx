@@ -76,22 +76,30 @@ export function StoryViewer(props: ViewerProps) {
   useEffect(() => {
     if (frozen || !current) return;
     let raf = 0;
+    let done = false; // guarantees goNext fires exactly once per story
     let last = performance.now();
     const tick = (now: number) => {
+      if (done) return;
       const delta = now - last;
       last = now;
       setProgress((p) => {
         const next = p + delta / DURATION;
         if (next >= 1) {
-          queueMicrotask(goNext);
+          if (!done) {
+            done = true;
+            queueMicrotask(goNext);
+          }
           return 1;
         }
         return next;
       });
-      raf = requestAnimationFrame(tick);
+      if (!done) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      done = true;
+      cancelAnimationFrame(raf);
+    };
   }, [frozen, current, goNext]);
 
   // Pause when the tab is hidden.

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { ensureRealtimeAuth } from "@/lib/supabase/realtime";
 import { publicUrl } from "@/lib/storage";
 import { Avatar } from "@/components/ui/Avatar";
 import { loadOlderMessages } from "@/app/(app)/messages/actions";
@@ -55,8 +56,9 @@ export function ChatThread({ conversationId, meId, peer, initialMessages }: Prop
   // Realtime: new messages in this conversation
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel(`conversation:${conversationId}`)
+    let cancelled = false;
+    const channel = supabase.channel(`conversation:${conversationId}:${Math.random().toString(36).slice(2)}`);
+    channel
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
@@ -70,9 +72,17 @@ export function ChatThread({ conversationId, meId, peer, initialMessages }: Prop
           setMessages((m) => (m.some((x) => x.id === row.id) ? m : [...m, { ...row, story }]));
           if (row.sender_id !== meId && document.visibilityState === "visible") markRead();
         },
-      )
-      .subscribe();
+      );
+    ensureRealtimeAuth(supabase).then(() => {
+      if (cancelled) return;
+      channel.subscribe((status, err) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn("[chat realtime]", status, err?.message ?? "");
+        }
+      });
+    });
     return () => {
+      cancelled = true;
       supabase.removeChannel(channel);
     };
   }, [conversationId, meId, markRead]);
