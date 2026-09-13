@@ -58,10 +58,8 @@ export function ChatThread({ conversationId, meId, peer, initialMessages, blocke
 
   const markRead = useCallback(async () => {
     const supabase = createClient();
-    await supabase
-      .from("conversation_reads")
-      .upsert({ conversation_id: conversationId, user_id: meId, last_read_at: new Date().toISOString() }, { onConflict: "conversation_id,user_id" });
-  }, [conversationId, meId]);
+    await supabase.rpc("mark_conversation_read", { p_conversation_id: conversationId }); // server clock
+  }, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();

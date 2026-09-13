@@ -723,6 +723,8 @@ export type Database = {
       accept_follow_request: { Args: { p_requester: string }; Returns: undefined };
       has_blocked_me: { Args: { p_user: string }; Returns: boolean };
       unread_announcement_count: { Args: Record<string, never>; Returns: number };
+      mark_announcements_read: { Args: Record<string, never>; Returns: undefined };
+      mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       is_conversation_member: { Args: { p_conversation_id: string }; Returns: boolean };
       claim_invite_code: { Args: { p_code: string }; Returns: string };
       release_invite_code: { Args: { p_id: string }; Returns: undefined };

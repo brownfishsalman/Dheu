@@ -25,14 +25,14 @@ export function AnnouncementsThread({ initial, meId, isAdmin }: Props) {
   // Mark as read on open and whenever something new arrives while open.
   const markRead = async () => {
     const supabase = createClient();
-    await supabase.from("announcement_reads").upsert({ user_id: meId, last_read_at: new Date().toISOString() });
+    await supabase.rpc("mark_announcements_read"); // stamped with the server clock
     window.dispatchEvent(new Event(BADGES_REFRESH_EVENT));
   };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
     markRead();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function AnnouncementsThread({ initial, meId, isAdmin }: Props) {
       cancelled = true;
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   async function post(e: React.FormEvent) {
