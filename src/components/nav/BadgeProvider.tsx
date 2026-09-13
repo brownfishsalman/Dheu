@@ -17,6 +17,7 @@ export const useBadges = () => useContext(BadgeContext);
 
 // Fired by the Activity page once it has marked everything as read.
 export const ACTIVITY_READ_EVENT = "dheu-activity-read";
+export const BADGES_REFRESH_EVENT = "dheu-badges-refresh";
 
 // One place that knows the unread counts for chat and activity. Fetches them
 // once per navigation and keeps a single realtime channel open, so the several
@@ -35,12 +36,13 @@ export function BadgeProvider({
 
   const refresh = useCallback(async () => {
     const supabase = createClient();
-    const [{ data: unread }, { count }] = await Promise.all([
+    const [{ data: unread }, { data: ann }, { count }] = await Promise.all([
       supabase.rpc("unread_counts"),
+      supabase.rpc("unread_announcement_count"),
       supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", userId).is("read_at", null),
     ]);
     setCounts({
-      messages: (unread ?? []).reduce((sum, row) => sum + Number(row.unread), 0),
+      messages: (unread ?? []).reduce((sum, row) => sum + Number(row.unread), 0) + (ann ?? 0),
       activity: count ?? 0,
     });
   }, [userId]);
@@ -57,10 +59,12 @@ export function BadgeProvider({
     const supabase = createClient();
     let cancelled = false;
     window.addEventListener(ACTIVITY_READ_EVENT, refresh);
+    window.addEventListener(BADGES_REFRESH_EVENT, refresh);
 
     const channel = supabase
       .channel(`badges:${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => refresh())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "announcements" }, () => refresh())
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => refresh())
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "notifications" }, () => refresh());
     ensureRealtimeAuth(supabase).then(() => {
@@ -70,6 +74,7 @@ export function BadgeProvider({
     return () => {
       cancelled = true;
       window.removeEventListener(ACTIVITY_READ_EVENT, refresh);
+      window.removeEventListener(BADGES_REFRESH_EVENT, refresh);
       supabase.removeChannel(channel);
     };
   }, [userId, refresh]);

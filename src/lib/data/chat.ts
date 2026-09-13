@@ -101,3 +101,25 @@ export async function getMessages(conversationId: string, before?: string): Prom
   })) as unknown as ChatMessage[];
   return rows.reverse();
 }
+
+export type AnnouncementItem = { id: string; body: string; created_at: string; author_id: string | null };
+
+export async function getAnnouncements(limit = 100): Promise<AnnouncementItem[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("announcements")
+    .select("id, body, created_at, author_id")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []).reverse();
+}
+
+// Latest announcement + unread count, for the pinned inbox row.
+export async function getAnnouncementSummary(): Promise<{ latest: AnnouncementItem | null; unread: number }> {
+  const supabase = await createClient();
+  const [{ data: latest }, { data: unread }] = await Promise.all([
+    supabase.from("announcements").select("id, body, created_at, author_id").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.rpc("unread_announcement_count"),
+  ]);
+  return { latest: latest ?? null, unread: unread ?? 0 };
+}

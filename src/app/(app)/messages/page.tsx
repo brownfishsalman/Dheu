@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SquarePen } from "lucide-react";
+import { SquarePen, Megaphone } from "lucide-react";
 import { requireProfile } from "@/lib/data/session";
-import { getConversations } from "@/lib/data/chat";
+import { getConversations, getAnnouncementSummary } from "@/lib/data/chat";
+import { WaveMark } from "@/components/brand/Logo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
 import { timeAgo } from "@/lib/time";
@@ -11,7 +12,7 @@ export const metadata: Metadata = { title: "Messages" };
 
 export default async function MessagesPage() {
   const me = await requireProfile();
-  const conversations = await getConversations(me.id);
+  const [conversations, ann] = await Promise.all([getConversations(me.id), getAnnouncementSummary()]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -23,6 +24,29 @@ export default async function MessagesPage() {
           </Link>
         }
       />
+
+      {/* Pinned announcements thread */}
+      <Link href="/messages/announcements" className="flex items-center gap-3 border-b border-line bg-brand-soft/40 px-4 py-3 hover:bg-brand-soft/70">
+        <span className="flex size-[52px] items-center justify-center rounded-full bg-surface ring-1 ring-line">
+          <WaveMark size={30} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-baseline justify-between gap-2">
+            <span className={`flex items-center gap-1.5 truncate ${ann.unread > 0 ? "font-bold" : "font-semibold"}`}>
+              <Megaphone className="size-4 text-brand" /> Dheu announcements
+            </span>
+            {ann.latest && <span className="shrink-0 text-xs text-ink-faint">{timeAgo(ann.latest.created_at)}</span>}
+          </span>
+          <span className={`block truncate text-sm ${ann.unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
+            {ann.latest ? ann.latest.body.split(/\r?\n/)[0] : "News and new features will appear here."}
+          </span>
+        </span>
+        {ann.unread > 0 && (
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xs font-bold text-brand-ink">
+            {ann.unread}
+          </span>
+        )}
+      </Link>
 
       {conversations.length === 0 ? (
         <div className="px-6 py-16 text-center">

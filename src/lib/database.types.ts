@@ -640,6 +640,34 @@ export type Database = {
           },
         ];
       };
+      announcements: {
+        Row: { id: string; author_id: string | null; body: string; created_at: string };
+        Insert: { id?: string; author_id?: string | null; body: string; created_at?: string };
+        Update: { id?: string; author_id?: string | null; body?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "announcements_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      announcement_reads: {
+        Row: { user_id: string; last_read_at: string };
+        Insert: { user_id: string; last_read_at?: string };
+        Update: { user_id?: string; last_read_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       conversation_reads: {
         Row: { conversation_id: string; user_id: string; last_read_at: string };
         Insert: { conversation_id: string; user_id: string; last_read_at?: string };
@@ -693,6 +721,8 @@ export type Database = {
       can_view_content_of: { Args: { p_author: string }; Returns: boolean };
       conversation_blocked: { Args: { p_conversation_id: string }; Returns: boolean };
       accept_follow_request: { Args: { p_requester: string }; Returns: undefined };
+      has_blocked_me: { Args: { p_user: string }; Returns: boolean };
+      unread_announcement_count: { Args: Record<string, never>; Returns: number };
       is_conversation_member: { Args: { p_conversation_id: string }; Returns: boolean };
       claim_invite_code: { Args: { p_code: string }; Returns: string };
       release_invite_code: { Args: { p_id: string }; Returns: undefined };
@@ -723,6 +753,7 @@ export type Conversation = Tables<"conversations">;
 export type InviteCode = Tables<"invite_codes">;
 export type StoryHighlight = Tables<"story_highlights">;
 export type Notification = Tables<"notifications">;
+export type Announcement = Tables<"announcements">;
 
 // Generic `Rel` is only used to keep the shape documented above.
 export type _Relationship = Rel;

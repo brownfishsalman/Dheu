@@ -34,7 +34,7 @@
 | **Social graph** | Every account is private: follow requests with accept / decline, follower lists, people search, blocking, a chronological feed of the people you follow. |
 | **Photos** | Resized to 1080 px in the browser before upload, HEIC → JPEG conversion, EXIF orientation applied, GPS and other metadata stripped. |
 | **Accounts** | Email + password, invite-code gated sign-up (members can generate codes for friends), first account becomes admin, light / dark / system theme, installable as a home-screen app (PWA). |
-| **Admin** | Invite codes with use limits and expiry, member suspension / password reset / deletion, content moderation, storage usage overview. |
+| **Admin** | Invite codes with use limits and expiry, member suspension / password reset / deletion, content moderation, storage usage overview, and a pinned read-only **announcements** thread in every inbox. |
 | **Housekeeping** | A nightly job deletes expired posts, stories, chat photos and old notifications together with their files. |
 
 ## Screenshots
