@@ -30,7 +30,11 @@ export async function getProfileStats(profileId: string, viewerId: string): Prom
   const supabase = await createClient();
 
   const [posts, followers, following, isFollowing, followsMe, requested, requestedMe, block] = await Promise.all([
-    supabase.rpc("live_post_count", { p_user: profileId }),
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", profileId)
+      .gt("expires_at", new Date().toISOString()),
     supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", profileId),
     supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", profileId),
     supabase
@@ -57,7 +61,7 @@ export async function getProfileStats(profileId: string, viewerId: string): Prom
   ]);
 
   return {
-    posts: posts.data ?? 0,
+    posts: posts.count ?? 0,
     followers: followers.count ?? 0,
     following: following.count ?? 0,
     isFollowing: (isFollowing.count ?? 0) > 0,
