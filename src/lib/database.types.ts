@@ -693,6 +693,8 @@ export type Database = {
       can_view_content_of: { Args: { p_author: string }; Returns: boolean };
       conversation_blocked: { Args: { p_conversation_id: string }; Returns: boolean };
       accept_follow_request: { Args: { p_requester: string }; Returns: undefined };
+      has_blocked_me: { Args: { p_user: string }; Returns: boolean };
+      live_post_count: { Args: { p_user: string }; Returns: number };
       is_conversation_member: { Args: { p_conversation_id: string }; Returns: boolean };
       claim_invite_code: { Args: { p_code: string }; Returns: string };
       release_invite_code: { Args: { p_id: string }; Returns: undefined };

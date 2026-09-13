@@ -26,8 +26,9 @@ export default async function ProfilePage(props: PageProps<"/u/[username]">) {
   const stats = await getProfileStats(profile.id, me.id);
   const blockedByMe = stats.blockStatus === "by_me" || stats.blockStatus === "both";
 
-  // Everyone's account is private: content only for approved followers (or yourself / admin).
-  const canSee = isMe || me.is_admin || (stats.isFollowing && !blockedByMe);
+  // Everyone's account is private: content only for approved followers (or yourself).
+  // The admin moderates from the admin panel, not by peeking here.
+  const canSee = isMe || (stats.isFollowing && !blockedByMe);
   const [posts, highlights] = canSee
     ? await Promise.all([getProfilePosts(profile.id), getHighlights(profile.id)])
     : [[], []];
