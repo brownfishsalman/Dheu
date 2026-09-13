@@ -2,6 +2,13 @@
   "name": "dheu",
   "version": "0.1.0",
   "private": true,
+  "description": "Dheu — an invite-only, Instagram-style photo community. Next.js 16 + Supabase.",
+  "license": "MIT",
+  "homepage": "https://dheu-beige.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brownfishsalman/Dheu.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

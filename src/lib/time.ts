@@ -1,7 +1,7 @@
 // Short relative timestamps like Instagram: "now", "5m", "3h", "2d", "3w".
 export function timeAgo(iso: string, now = Date.now()): string {
   const s = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 1000));
-  if (s < 45) return "now";
+  if (s < 60) return "now";
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
