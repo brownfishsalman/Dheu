@@ -27,7 +27,7 @@ export default async function HomePage() {
           <p className="font-display text-xl font-semibold">Your feed is quiet</p>
           <p className="mx-auto mt-2 max-w-xs text-sm text-ink-muted">
             {following.length === 0
-              ? "Follow a few people to see their posts here, or share the first one yourself."
+              ? "Send a few follow requests — once accepted, their posts show up here. Or share the first one yourself."
               : "The people you follow haven't posted lately. Be the first."}
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">

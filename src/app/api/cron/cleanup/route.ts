@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
   const now = new Date().toISOString();
-  const report = { posts: 0, postImages: 0, stories: 0, errors: [] as string[] };
+  const report = { posts: 0, postImages: 0, stories: 0, chatPhotos: 0, errors: [] as string[] };
 
   // ---- expired posts -------------------------------------------------
   const { data: posts, error: pErr } = await admin
@@ -54,6 +54,25 @@ export async function GET(request: Request) {
     const { error } = await admin.from("stories").delete().in("id", removable.map((s) => s.id));
     if (error) report.errors.push(`story rows: ${error.message}`);
     else report.stories = removable.length;
+  }
+
+  // ---- chat photos older than their expiry (message text stays) -----------
+  const { data: photos, error: cpErr } = await admin
+    .from("messages")
+    .select("id, image_path")
+    .not("image_path", "is", null)
+    .lte("image_expires_at", now)
+    .limit(1000);
+  if (cpErr) report.errors.push(`chat photos: ${cpErr.message}`);
+  if (photos && photos.length > 0) {
+    const paths = photos.map((p) => p.image_path!).filter(Boolean);
+    for (let i = 0; i < paths.length; i += 100) {
+      const { error } = await admin.storage.from("chat").remove(paths.slice(i, i + 100));
+      if (error) report.errors.push(`chat photo files: ${error.message}`);
+    }
+    const { error } = await admin.from("messages").update({ image_path: null }).in("id", photos.map((p) => p.id));
+    if (error) report.errors.push(`chat photo rows: ${error.message}`);
+    else report.chatPhotos = photos.length;
   }
 
   // ---- old notifications (keep the activity page light) -----------------

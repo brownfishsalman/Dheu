@@ -36,7 +36,7 @@ export default async function MessagesPage() {
         <ul className="divide-y divide-line">
           {conversations.map((c) => {
             const preview = c.last
-              ? `${c.last.sender_id === me.id ? "You: " : ""}${c.last.story_id ? "Replied to a story: " : ""}${c.last.body}`
+              ? `${c.last.sender_id === me.id ? "You: " : ""}${c.last.story_id ? "Replied to a story: " : ""}${c.last.image_path ? "📷 Photo " : ""}${c.last.body}`
               : "No messages yet";
             return (
               <li key={c.id}>

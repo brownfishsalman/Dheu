@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/profile/FollowButton";
-import type { ProfileListItem } from "@/lib/data/profiles";
+import type { ProfileListItem, FollowState } from "@/lib/data/profiles";
 
 type Props = {
   people: ProfileListItem[];
   viewerId: string;
-  followingIds: Set<string>;
+  states: Record<string, FollowState>; // profile id -> my follow state
   emptyText: string;
 };
 
-export function ProfileList({ people, viewerId, followingIds, emptyText }: Props) {
+export function ProfileList({ people, viewerId, states, emptyText }: Props) {
   if (people.length === 0) {
     return <p className="px-4 py-12 text-center text-sm text-ink-muted">{emptyText}</p>;
   }
@@ -27,7 +27,7 @@ export function ProfileList({ people, viewerId, followingIds, emptyText }: Props
             </span>
           </Link>
           {p.id !== viewerId && (
-            <FollowButton targetId={p.id} initialFollowing={followingIds.has(p.id)} size="sm" />
+            <FollowButton targetId={p.id} initialState={states[p.id] ?? "none"} size="sm" />
           )}
         </li>
       ))}

@@ -1,12 +1,12 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile } from "@/lib/database.types";
+import type { Profile, NotificationType } from "@/lib/database.types";
 
 export type NotificationActor = Pick<Profile, "id" | "username" | "full_name" | "avatar_path">;
 
 export type NotificationItem = {
   id: string;
-  type: "like" | "follow" | "comment" | "story_reaction";
+  type: NotificationType;
   read_at: string | null;
   created_at: string;
   post_id: string | null;

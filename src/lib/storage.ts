@@ -1,6 +1,6 @@
 // Helpers for Supabase Storage public URLs. Works on server and client.
 
-export type Bucket = "avatars" | "posts" | "stories";
+export type Bucket = "avatars" | "posts" | "stories" | "chat";
 
 export function publicUrl(bucket: Bucket, path: string | null | undefined): string | null {
   if (!path) return null;

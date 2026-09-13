@@ -10,12 +10,12 @@ export default async function AdminInvitesPage() {
   const siteUrl = await getSiteUrl();
   const { data: invites } = await admin
     .from("invite_codes")
-    .select("*")
+    .select("*, creator:profiles!invite_codes_created_by_fkey(username)")
     .order("created_at", { ascending: false });
 
   return (
     <InviteManager
-      invites={invites ?? []}
+      invites={(invites ?? []).map((i) => ({ ...i, creator: i.creator?.username ?? null }))}
       siteUrl={siteUrl}
     />
   );

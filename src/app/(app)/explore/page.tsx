@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Search } from "lucide-react";
 import { requireProfile } from "@/lib/data/session";
-import { searchProfiles, getFollowingIds } from "@/lib/data/profiles";
+import { searchProfiles, getRelationships, statesFor } from "@/lib/data/profiles";
 import { ProfileList } from "@/components/profile/ProfileList";
 
 export const metadata: Metadata = { title: "Search" };
@@ -11,7 +11,7 @@ export default async function ExplorePage(props: PageProps<"/explore">) {
   const q = typeof sp.q === "string" ? sp.q : "";
 
   const me = await requireProfile();
-  const [people, following] = await Promise.all([searchProfiles(q), getFollowingIds(me.id)]);
+  const [people, rel] = await Promise.all([searchProfiles(q), getRelationships(me.id)]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -37,7 +37,7 @@ export default async function ExplorePage(props: PageProps<"/explore">) {
       <ProfileList
         people={people}
         viewerId={me.id}
-        followingIds={new Set(following)}
+        states={statesFor(rel, people)}
         emptyText={q ? "No one matches that." : "No members yet."}
       />
     </div>

@@ -29,13 +29,13 @@
 |---|---|
 | **Posts** | 1–10 photos per post in a swipeable carousel, any aspect ratio, captions, likes (double-tap too), comments. Every post expires 30 days after it's shared. |
 | **Stories** | 24-hour photo stories with a full-screen viewer (progress bars, tap / hold / swipe gestures, keyboard on desktop), emoji reactions, text replies that land in chat, "seen by" list, and permanent Highlights on the profile. |
-| **Chat** | 1-to-1 messaging with instant delivery over WebSockets, unread badges, day separators and story-reply context. |
-| **Activity** | Instagram-style alerts for likes, comments, new followers and story reactions — created by database triggers, shown with a live badge. |
-| **Social graph** | Follow / unfollow, follower lists, people search, a chronological feed of the people you follow. |
+| **Chat** | 1-to-1 messaging with instant delivery over WebSockets, photos that vanish after 7 days, swipe-to-reply with quoted messages, unread badges, day separators and story-reply context. |
+| **Activity** | Instagram-style alerts for follow requests, likes, comments, new followers and story reactions — created by database triggers, shown with a live badge. |
+| **Social graph** | Every account is private: follow requests with accept / decline, follower lists, people search, blocking, a chronological feed of the people you follow. |
 | **Photos** | Resized to 1080 px in the browser before upload, HEIC → JPEG conversion, EXIF orientation applied, GPS and other metadata stripped. |
-| **Accounts** | Email + password, invite-code gated sign-up, first account becomes admin, light / dark / system theme, installable as a home-screen app (PWA). |
+| **Accounts** | Email + password, invite-code gated sign-up (members can generate codes for friends), first account becomes admin, light / dark / system theme, installable as a home-screen app (PWA). |
 | **Admin** | Invite codes with use limits and expiry, member suspension / password reset / deletion, content moderation, storage usage overview. |
-| **Housekeeping** | A nightly job deletes expired posts, stories and old notifications together with their files. |
+| **Housekeeping** | A nightly job deletes expired posts, stories, chat photos and old notifications together with their files. |
 
 ## Screenshots
 
@@ -66,9 +66,9 @@ flowchart LR
   B["Browser / PWA<br/>React 19 client components"]
   V["Vercel<br/>Next.js 16 server components,<br/>server actions, nightly cron"]
   subgraph S["Supabase (ap-southeast-1)"]
-    DB[("Postgres<br/>16 tables · RLS · triggers")]
+    DB[("Postgres<br/>18 tables · RLS · triggers")]
     AUTH["Auth<br/>email + password, ES256 JWT"]
-    ST["Storage<br/>avatars · posts · stories"]
+    ST["Storage<br/>avatars · posts · stories · chat"]
     RT["Realtime<br/>Postgres changes over WebSocket"]
   end
   B -- "pages & actions" --> V
@@ -82,7 +82,7 @@ flowchart LR
 
 **One codebase, no separate backend.** Next.js server components render pages on Vercel and query Supabase directly; interactive pieces (feed, story viewer, chat, uploads) are client components that talk to Supabase from the browser.
 
-**Security lives in the database.** Every table has Row Level Security — 47 policies evaluated inside Postgres against the caller's JWT. Members can only change their own rows, read chats they belong to, or touch the `read_at` column of their own notifications; the admin can delete anything. The browser only ever holds a publishable key that grants nothing on its own. Privileged operations (invite-gated sign-up, bans, cleanup) run server-side with the secret key.
+**Security lives in the database.** Every table has Row Level Security — 60-odd policies evaluated inside Postgres against the caller's JWT. Members can only change their own rows, read chats they belong to, or touch the `read_at` column of their own notifications; the admin can delete anything. The browser only ever holds a publishable key that grants nothing on its own. Privileged operations (invite-gated sign-up, bans, cleanup) run server-side with the secret key.
 
 **Notifications are triggers.** Inserting a like, follow, comment or story reaction fires a PL/pgSQL trigger that writes a notification row (and deletes it again on unlike / unfollow). Realtime streams the insert to the recipient's open tab.
 
@@ -110,7 +110,7 @@ cp .env.example .env.local   # fill in your Supabase URL + keys
 npm run dev
 ```
 
-Then create a free Supabase project, run the three files in `supabase/migrations/` in its SQL editor, and turn off "Confirm email" under Authentication. The first account to sign up becomes the admin. Full step-by-step instructions — including deploying to Vercel and day-to-day administration — are in the [owner's guide](docs/OWNER-GUIDE.md).
+Then create a free Supabase project, run the files in `supabase/migrations/` in order in its SQL editor, and turn off "Confirm email" under Authentication. The first account to sign up becomes the admin. Full step-by-step instructions — including deploying to Vercel and day-to-day administration — are in the [owner's guide](docs/OWNER-GUIDE.md).
 
 ## Project layout
 

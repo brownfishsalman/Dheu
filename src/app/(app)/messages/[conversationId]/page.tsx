@@ -33,7 +33,7 @@ export default async function ConversationPage(props: PageProps<"/messages/[conv
           </Link>
         }
       />
-      <ChatThread conversationId={conv.id} meId={me.id} peer={conv.peer} initialMessages={messages} />
+      <ChatThread conversationId={conv.id} meId={me.id} peer={conv.peer} initialMessages={messages} blocked={conv.blocked} />
     </div>
   );
 }

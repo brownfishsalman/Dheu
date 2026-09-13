@@ -1,5 +1,7 @@
 // Hand-written to mirror supabase/migrations/*.sql. Keep the two in sync.
 
+export type NotificationType = "like" | "follow" | "comment" | "story_reaction" | "follow_request" | "follow_accepted";
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 type Rel = {
@@ -459,14 +461,20 @@ export type Database = {
           sender_id: string;
           body: string;
           story_id: string | null;
+          image_path: string | null;
+          image_expires_at: string | null;
+          reply_to_id: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           conversation_id: string;
           sender_id: string;
-          body: string;
+          body?: string;
           story_id?: string | null;
+          image_path?: string | null;
+          image_expires_at?: string | null;
+          reply_to_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -475,9 +483,19 @@ export type Database = {
           sender_id?: string;
           body?: string;
           story_id?: string | null;
+          image_path?: string | null;
+          image_expires_at?: string | null;
+          reply_to_id?: string | null;
           created_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "messages_reply_to_id_fkey";
+            columns: ["reply_to_id"];
+            isOneToOne: false;
+            referencedRelation: "messages";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "messages_conversation_id_fkey";
             columns: ["conversation_id"];
@@ -506,7 +524,7 @@ export type Database = {
           id: string;
           user_id: string;
           actor_id: string;
-          type: "like" | "follow" | "comment" | "story_reaction";
+          type: NotificationType;
           post_id: string | null;
           comment_id: string | null;
           story_id: string | null;
@@ -517,7 +535,7 @@ export type Database = {
           id?: string;
           user_id: string;
           actor_id: string;
-          type: "like" | "follow" | "comment" | "story_reaction";
+          type: NotificationType;
           post_id?: string | null;
           comment_id?: string | null;
           story_id?: string | null;
@@ -528,7 +546,7 @@ export type Database = {
           id?: string;
           user_id?: string;
           actor_id?: string;
-          type?: "like" | "follow" | "comment" | "story_reaction";
+          type?: NotificationType;
           post_id?: string | null;
           comment_id?: string | null;
           story_id?: string | null;
@@ -576,6 +594,48 @@ export type Database = {
             columns: ["story_id"];
             isOneToOne: false;
             referencedRelation: "stories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      blocks: {
+        Row: { blocker_id: string; blocked_id: string; created_at: string };
+        Insert: { blocker_id: string; blocked_id: string; created_at?: string };
+        Update: { blocker_id?: string; blocked_id?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocker_id_fkey";
+            columns: ["blocker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "blocks_blocked_id_fkey";
+            columns: ["blocked_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      follow_requests: {
+        Row: { requester_id: string; target_id: string; created_at: string };
+        Insert: { requester_id: string; target_id: string; created_at?: string };
+        Update: { requester_id?: string; target_id?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "follow_requests_requester_id_fkey";
+            columns: ["requester_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "follow_requests_target_id_fkey";
+            columns: ["target_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -628,6 +688,11 @@ export type Database = {
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       admin_stats: { Args: Record<string, never>; Returns: Json };
+      blocked_either: { Args: { p_a: string; p_b: string }; Returns: boolean };
+      block_status: { Args: { p_other: string }; Returns: string | null };
+      can_view_content_of: { Args: { p_author: string }; Returns: boolean };
+      conversation_blocked: { Args: { p_conversation_id: string }; Returns: boolean };
+      accept_follow_request: { Args: { p_requester: string }; Returns: undefined };
       is_conversation_member: { Args: { p_conversation_id: string }; Returns: boolean };
       claim_invite_code: { Args: { p_code: string }; Returns: string };
       release_invite_code: { Args: { p_id: string }; Returns: undefined };

@@ -5,7 +5,7 @@ import { Copy, Check, Ban, Trash2, RotateCcw, Loader2 } from "lucide-react";
 import { createInvite, setInviteDisabled, deleteInvite, type ActionResult } from "@/app/(app)/admin/actions";
 import type { InviteCode } from "@/lib/database.types";
 
-type Props = { invites: InviteCode[]; siteUrl: string };
+type Props = { invites: (InviteCode & { creator: string | null })[]; siteUrl: string };
 
 export function InviteManager({ invites, siteUrl }: Props) {
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(createInvite, null);
@@ -89,6 +89,7 @@ export function InviteManager({ invites, siteUrl }: Props) {
                     {inv.use_count}/{inv.max_uses} used
                     {inv.expires_at && ` · until ${new Date(inv.expires_at).toLocaleDateString("en-GB")}`}
                     {inv.note && ` · ${inv.note}`}
+                    {inv.creator && ` · by @${inv.creator}`}
                   </span>
                   <span className="ml-auto flex items-center gap-1">
                     <button
