@@ -58,9 +58,20 @@ export async function enablePush(userId: string): Promise<{ ok: true } | { ok: f
   if (permission !== "granted") return { ok: false, error: "Notifications were not allowed." };
 
   const reg = (await registerServiceWorker()) ?? (await navigator.serviceWorker.ready);
-  const sub =
-    (await reg.pushManager.getSubscription()) ??
-    (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(key) }));
+  let sub: PushSubscription | null = null;
+  try {
+    sub =
+      (await reg.pushManager.getSubscription()) ??
+      (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(key) }));
+  } catch (err) {
+    const isBrave = Boolean((navigator as unknown as { brave?: unknown }).brave);
+    return {
+      ok: false,
+      error: isBrave
+        ? "Brave couldn't reach the push service. Open brave://settings/privacy, turn on “Use Google services for push messaging”, restart Brave and try again."
+        : `Your browser couldn't set up push notifications (${(err as Error).message}).`,
+    };
+  }
 
   const json = sub.toJSON();
   const { error } = await createClient()

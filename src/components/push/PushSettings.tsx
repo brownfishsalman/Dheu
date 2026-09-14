@@ -27,18 +27,23 @@ export function PushSettings({ userId }: { userId: string }) {
   async function toggle() {
     setBusy(true);
     setError(null);
-    if (status === "on") {
-      await disablePush();
-      setStatus("off");
-    } else {
-      const r = await enablePush(userId);
-      if (r.ok) setStatus("on");
-      else {
-        setError(r.error);
-        setStatus(await detect());
+    try {
+      if (status === "on") {
+        await disablePush();
+        setStatus("off");
+      } else {
+        const r = await enablePush(userId);
+        if (r.ok) setStatus("on");
+        else {
+          setError(r.error);
+          setStatus(await detect());
+        }
       }
+    } catch (err) {
+      setError((err as Error).message || "Something went wrong.");
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   }
 
   const copy: Record<Status, string> = {

@@ -35,7 +35,9 @@ export function PushBanner({ userId }: { userId: string }) {
 
   async function enable() {
     setBusy(true);
-    await enablePush(userId);
+    try {
+      await enablePush(userId);
+    } catch {}
     setBusy(false);
     dismiss();
   }

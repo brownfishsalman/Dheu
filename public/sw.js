@@ -11,6 +11,8 @@ self.addEventListener("push", (event) => {
   } catch {
     if (event.data) data.body = event.data.text();
   }
+  // Let any open Dheu tab know (used to refresh badges and by tests).
+  self.clients.matchAll({ type: "window" }).then((list) => list.forEach((c) => c.postMessage({ type: "push", data })));
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
