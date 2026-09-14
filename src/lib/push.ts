@@ -10,8 +10,11 @@ function configure() {
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return false;
-  // Subject is a contact for the push services; the site URL is accepted.
-  webpush.setVapidDetails(process.env.NEXT_PUBLIC_SITE_URL ?? "https://dheu-beige.vercel.app", pub, priv);
+  // Subject is a contact for the push services and must be https:// or mailto:.
+  // Only trust NEXT_PUBLIC_SITE_URL when it is a real https address.
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const subject = /^https:\/\//.test(site) ? site : "https://dheu-beige.vercel.app";
+  webpush.setVapidDetails(subject, pub, priv);
   configured = true;
   return true;
 }
