@@ -108,7 +108,7 @@ export async function deleteMember(userId: string): Promise<ActionResult> {
   const admin = createAdminClient();
 
   // Remove their files first (rows cascade when the auth user is deleted).
-  for (const bucket of ["avatars", "posts", "stories"] as const) {
+  for (const bucket of ["avatars", "posts", "stories", "chat"] as const) {
     const { data: files } = await admin.storage.from(bucket).list(userId, { limit: 1000 });
     if (files && files.length > 0) {
       await admin.storage.from(bucket).remove(files.map((f) => `${userId}/${f.name}`));
@@ -143,4 +143,42 @@ export async function adminDeleteStory(storyId: string): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin/content");
   return { ok: true, message: "Story deleted." };
+}
+
+export async function addSuggestion(userId: string): Promise<ActionResult> {
+  const me = await assertAdmin();
+  const admin = createAdminClient();
+  const { data: max } = await admin.from("suggested_people").select("position").order("position", { ascending: false }).limit(1).maybeSingle();
+  const { error } = await admin
+    .from("suggested_people")
+    .upsert({ user_id: userId, position: (max?.position ?? -1) + 1, added_by: me.id }, { onConflict: "user_id" });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/suggestions");
+  return { ok: true };
+}
+
+export async function removeSuggestion(userId: string): Promise<ActionResult> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from("suggested_people").delete().eq("user_id", userId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/suggestions");
+  return { ok: true };
+}
+
+export async function moveSuggestion(userId: string, direction: -1 | 1): Promise<ActionResult> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { data: rows } = await admin.from("suggested_people").select("user_id, position").order("position");
+  if (!rows) return { ok: false, error: "Couldn't load suggestions." };
+  const i = rows.findIndex((r) => r.user_id === userId);
+  const j = i + direction;
+  if (i < 0 || j < 0 || j >= rows.length) return { ok: true };
+  const order = rows.map((r) => r.user_id);
+  [order[i], order[j]] = [order[j], order[i]];
+  for (let k = 0; k < order.length; k++) {
+    await admin.from("suggested_people").update({ position: k }).eq("user_id", order[k]);
+  }
+  revalidatePath("/admin/suggestions");
+  return { ok: true };
 }

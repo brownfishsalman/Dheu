@@ -37,6 +37,7 @@ Useful commands:
    - `supabase/migrations/0005_fixes.sql`
    - `supabase/migrations/0006_announcements.sql`
    - `supabase/migrations/0007_server_read_marks.sql`
+   - `supabase/migrations/0008_suggestions_push.sql` (replace the two placeholders first — see section 3a)
 2. **Turn off "Confirm email"** – Supabase → Authentication → Sign In / Providers → Email → untick _Confirm email_. (Accounts are created by the app with the invite code, so no confirmation email is needed. The free tier can't send emails to arbitrary addresses anyway.)
 3. **Keys** – Supabase → Project Settings → API keys. Put the URL, the _publishable_ key and the _secret_ key in `.env.local` (copy `.env.example`).
 4. **First account = admin.** The very first person to sign up doesn't need an invite code and automatically becomes the admin. Do this yourself immediately after deploying.
@@ -54,6 +55,14 @@ Useful commands:
 
 To use a custom domain later: Vercel → Project → Settings → Domains.
 
+### 3a. Push notifications (one-time setup)
+
+1. Generate keys once on your PC: `npx web-push generate-vapid-keys` (or reuse the ones already in `.env.local`).
+2. Add three variables in Vercel → Settings → Environment Variables, then redeploy:
+   `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `PUSH_WEBHOOK_SECRET` (any long random string).
+3. In `0008_suggestions_push.sql`, replace `__PUSH_URL__` with `https://<your-site>/api/push` and `__PUSH_SECRET__` with the same secret, then run it in the SQL Editor.
+4. Members turn notifications on under Settings → Notifications (on iPhone only after adding Dheu to the Home Screen).
+
 ---
 
 ## 4. Day-to-day admin
@@ -63,6 +72,7 @@ Everything is under **Settings → Open admin panel** (only visible to the admin
 - **Invites** – generate a code, set how many people can use it and when it expires. Members can also make their own single-use codes (Settings → Share with friends, max 5 unused each); those appear here too, marked "by @username". The copy button gives a link like `https://dheu-beige.vercel.app/signup?code=WAVE-XXXX-XXXX` with the code pre-filled.
 - **Members** – suspend (blocks login instantly), reinstate, set a temporary password for someone who forgot theirs (tell them privately; they change it in Settings), or delete a member and everything they posted.
 - **Privacy** – every account is private: people must send a follow request and be accepted before they see someone's posts and stories. Members can block each other (Settings → Blocked accounts to undo).
+- **Suggestions** – pick members to appear in the "Suggested for you" strip that shows in feeds now and then; drag order with the arrows.
 - **Announcements** – Messages → *Dheu announcements* (pinned at the top of everyone's inbox). Only you can post there; members get an unread badge and see it instantly. Use it for new features, downtime notices, house rules.
 - **Content** – see all active stories and recent posts; delete anything. You can also delete any post from the "…" menu on the post itself.
 - **Overview** – member count, storage used vs. the free 1 GB, etc.

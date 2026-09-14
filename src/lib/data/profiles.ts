@@ -181,3 +181,41 @@ export async function searchProfiles(query: string, limit = 30): Promise<Profile
   const { data } = await req;
   return data ?? [];
 }
+
+// Admin-curated suggestions, minus people the viewer already follows,
+// has requested, has blocked, or is. Profiles of people who blocked the
+// viewer are hidden by RLS automatically.
+export async function getSuggestedPeople(viewerId: string, limit = 10): Promise<ProfileListItem[]> {
+  const supabase = await createClient();
+  const [{ data: rows }, rel, { data: blocked }] = await Promise.all([
+    supabase
+      .from("suggested_people")
+      .select("user_id, position, profile:profiles!suggested_people_user_id_fkey(id, username, full_name, avatar_path)")
+      .order("position")
+      .limit(50),
+    getRelationships(viewerId),
+    supabase.from("blocks").select("blocked_id").eq("blocker_id", viewerId),
+  ]);
+  const skip = new Set<string>([viewerId, ...rel.following, ...rel.requested, ...(blocked ?? []).map((b) => b.blocked_id)]);
+  return (rows ?? [])
+    .map((r) => r.profile)
+    .filter((p): p is ProfileListItem => Boolean(p) && !skip.has(p!.id))
+    .slice(0, limit);
+}
+
+export type SuggestedRow = ProfileListItem & { position: number };
+
+export async function getAllSuggestions(): Promise<SuggestedRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("suggested_people")
+    .select("position, profile:profiles!suggested_people_user_id_fkey(id, username, full_name, avatar_path)")
+    .order("position");
+  return (data ?? []).filter((r) => r.profile).map((r) => ({ ...r.profile!, position: r.position }));
+}
+
+// The strip should appear "sometimes, not always": roughly 2 feed loads in 5.
+export async function maybeSuggestedPeople(viewerId: string, chance = 0.4): Promise<ProfileListItem[]> {
+  if (Math.random() >= chance) return [];
+  return getSuggestedPeople(viewerId);
+}

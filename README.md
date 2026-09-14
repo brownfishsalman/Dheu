@@ -30,8 +30,8 @@
 | **Posts** | 1–10 photos per post in a swipeable carousel, any aspect ratio, captions, likes (double-tap too), comments. Every post expires 30 days after it's shared. |
 | **Stories** | 24-hour photo stories with a full-screen viewer (progress bars, tap / hold / swipe gestures, keyboard on desktop), emoji reactions, text replies that land in chat, "seen by" list, and permanent Highlights on the profile. |
 | **Chat** | 1-to-1 messaging with instant delivery over WebSockets, photos that vanish after 7 days, swipe-to-reply with quoted messages, unread badges, day separators and story-reply context. |
-| **Activity** | Instagram-style alerts for follow requests, likes, comments, new followers and story reactions — created by database triggers, shown with a live badge. |
-| **Social graph** | Every account is private: follow requests with accept / decline, follower lists, people search, blocking, a chronological feed of the people you follow. |
+| **Activity** | Instagram-style alerts for follow requests, likes, comments, new followers and story reactions — created by database triggers, shown with a live badge, and delivered as **Web Push** notifications to installed PWAs (database → webhook → VAPID push). |
+| **Social graph** | Every account is private: follow requests with accept / decline, follower lists, people search, blocking, a chronological feed of the people you follow, and an admin-curated "Suggested for you" strip that appears now and then. |
 | **Photos** | Resized to 1080 px in the browser before upload, HEIC → JPEG conversion, EXIF orientation applied, GPS and other metadata stripped. |
 | **Accounts** | Email + password, invite-code gated sign-up (members can generate codes for friends), first account becomes admin, light / dark / system theme, installable as a home-screen app (PWA). |
 | **Admin** | Invite codes with use limits and expiry, member suspension / password reset / deletion, content moderation, storage usage overview, and a pinned read-only **announcements** thread in every inbox. |

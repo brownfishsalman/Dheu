@@ -668,6 +668,65 @@ export type Database = {
           },
         ];
       };
+      suggested_people: {
+        Row: { user_id: string; position: number; added_by: string | null; added_at: string };
+        Insert: { user_id: string; position?: number; added_by?: string | null; added_at?: string };
+        Update: { user_id?: string; position?: number; added_by?: string | null; added_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "suggested_people_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "suggested_people_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          endpoint?: string;
+          p256dh?: string;
+          auth?: string;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       conversation_reads: {
         Row: { conversation_id: string; user_id: string; last_read_at: string };
         Insert: { conversation_id: string; user_id: string; last_read_at?: string };

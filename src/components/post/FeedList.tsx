@@ -1,16 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { PostCard, type Viewer } from "@/components/post/PostCard";
+import { SuggestedStrip } from "@/components/post/SuggestedStrip";
+import type { ProfileListItem } from "@/lib/data/profiles";
 import { loadMoreFeed } from "@/app/(app)/feed-actions";
 import type { FeedPost } from "@/lib/data/posts";
 
-type Props = { initialPosts: FeedPost[]; initialCursor: string | null; viewer: Viewer };
+type Props = {
+  initialPosts: FeedPost[];
+  initialCursor: string | null;
+  viewer: Viewer;
+  suggestions?: ProfileListItem[]; // when present, a "Suggested for you" strip is slotted in
+};
 
 // Infinite-scrolling list of posts. Loads the next page when the sentinel
 // at the bottom scrolls into view.
-export function FeedList({ initialPosts, initialCursor, viewer }: Props) {
+export function FeedList({ initialPosts, initialCursor, viewer, suggestions }: Props) {
   const [posts, setPosts] = useState(initialPosts);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
@@ -51,13 +58,17 @@ export function FeedList({ initialPosts, initialCursor, viewer }: Props) {
   return (
     <div className="space-y-4 sm:space-y-6">
       {posts.map((post, i) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          viewer={viewer}
-          priority={i === 0}
-          onDeleted={() => setPosts((p) => p.filter((x) => x.id !== post.id))}
-        />
+        <Fragment key={post.id}>
+          <PostCard
+            post={post}
+            viewer={viewer}
+            priority={i === 0}
+            onDeleted={() => setPosts((p) => p.filter((x) => x.id !== post.id))}
+          />
+          {suggestions && suggestions.length > 0 && i === Math.min(1, posts.length - 1) && (
+            <SuggestedStrip people={suggestions} />
+          )}
+        </Fragment>
       ))}
       <div ref={sentinel} className="flex justify-center py-4">
         {loading && <Loader2 className="size-6 animate-spin text-ink-faint" />}

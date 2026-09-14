@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MEMBER_INVITE_LIMIT } from "@/lib/constants";
 import { ShareWithFriends } from "@/components/settings/ShareWithFriends";
 import { BlockedList } from "@/components/settings/BlockedList";
+import { PushSettings } from "@/components/push/PushSettings";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
 import { ThemePicker, ChangePasswordForm } from "@/components/settings/AccountSettings";
@@ -31,6 +32,11 @@ export default async function SettingsPage() {
         <section className="card p-5">
           <h2 className="mb-4 font-display text-lg font-semibold">Profile</h2>
           <EditProfileForm profile={profile} />
+        </section>
+
+        <section className="card p-5">
+          <h2 className="mb-1 font-display text-lg font-semibold">Notifications</h2>
+          <PushSettings userId={profile.id} />
         </section>
 
         <section className="card p-5">
