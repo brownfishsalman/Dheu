@@ -24,8 +24,10 @@ export async function GET() {
     dbRoundTripMs: dbMs,
     dbRoundTripWarmMs: dbMsWarm,
     push: {
-      vapidPublicKey: Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
-      vapidPrivateKey: Boolean(process.env.VAPID_PRIVATE_KEY),
+      // lengths only: a valid public key is 87 characters, a private key 43
+      vapidPublicKeyLen: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.length ?? 0,
+      vapidPrivateKeyLen: process.env.VAPID_PRIVATE_KEY?.length ?? 0,
+      vapidPublicKeyFp: fp(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
       webhookSecret: fp(process.env.PUSH_WEBHOOK_SECRET),
     },
   });

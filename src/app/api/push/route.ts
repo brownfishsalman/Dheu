@@ -72,6 +72,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: "unknown table" });
   }
 
-  const result = await sendPush(recipients, payload);
-  return NextResponse.json({ ok: true, ...result });
+  try {
+    const result = await sendPush(recipients, payload);
+    return NextResponse.json({ ok: true, ...result });
+  } catch (err) {
+    // Surface the reason (this endpoint is secret-protected, so it's safe to be specific).
+    console.error("[push] send failed:", err);
+    return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
+  }
 }
